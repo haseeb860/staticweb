@@ -1,0 +1,30 @@
+name: Deploy to Local Docker
+
+on:
+  push:
+    branches:
+      - master  # or any branch you want
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t my-local-app:latest .
+
+      - name: Stop and remove existing container (if any)
+        run: |
+          docker stop my-local-app || true
+          docker rm my-local-app || true
+
+      - name: Run Docker container
+        run: |
+          docker run -d --name my-local-app -p 8080:80 my-local-app:latest
